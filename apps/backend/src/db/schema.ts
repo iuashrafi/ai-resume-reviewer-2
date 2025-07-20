@@ -7,8 +7,6 @@ import {
   json,
   timestamp,
   varchar,
-  jsonb,
-  index,
 } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
@@ -20,9 +18,6 @@ export const users = pgTable("users", {
   password: varchar("password", { length: 255 }).notNull(),
   firstName: varchar("first_name", { length: 100 }),
   lastName: varchar("last_name", { length: 100 }),
-  profileImageUrl: varchar("profile_image_url", { length: 500 }),
-  isEmailVerified: varchar("is_email_verified").default("false"),
-  refreshToken: text("refresh_token"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

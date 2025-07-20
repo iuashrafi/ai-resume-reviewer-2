@@ -5,12 +5,18 @@ import { db, users, registerSchema, loginSchema } from "../db/index.js";
 import { eq } from "drizzle-orm";
 import jwt from "jsonwebtoken";
 import { AuthenticatedRequest } from "../types/auth.types.js";
-import { id } from "zod/v4/locales";
 
 export const register = async (req: Request, res: Response) => {
   try {
     const validatedData = registerSchema.parse(req.body);
     const { email, password, firstName, lastName } = validatedData;
+
+    console.log({
+      email,
+      password,
+      firstName,
+      lastName,
+    });
 
     const [existingUser] = await db
       .select()
