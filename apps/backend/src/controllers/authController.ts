@@ -62,7 +62,8 @@ export const login = async (req: Request, res: Response) => {
 
     const [user] = await db.select().from(users).where(eq(users.email, email));
     if (!user) {
-      return res.status(400).json({ message: "Invalid credentials" });
+      res.status(400).json({ message: "Invalid credentials" });
+      return;
     }
 
     const isValidPassword = await bcrypt.compare(password, user.password);
