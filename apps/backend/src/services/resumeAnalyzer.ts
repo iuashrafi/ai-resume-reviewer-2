@@ -5,6 +5,7 @@ import type {
   JobCategory,
   HighlightedText,
 } from "../db/index.js";
+import pdfParse from "pdf-parse";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -12,37 +13,9 @@ const openai = new OpenAI({
 
 export async function extractTextFromPDF(buffer: Buffer): Promise<string> {
   try {
-    // Import the legacy build of pdfjs-dist that works in Node.js
-    const pdfjsLib = await import("pdfjs-dist/legacy/build/pdf.js");
+    const data = await pdfParse(buffer);
 
-    const pdfData = new Uint8Array(buffer);
-
-    const loadingTask = pdfjsLib.getDocument({
-      data: pdfData,
-    });
-
-    const pdfDocument = await loadingTask.promise;
-    let fullText = "";
-
-    for (let pageNum = 1; pageNum <= pdfDocument.numPages; pageNum++) {
-      const page = await pdfDocument.getPage(pageNum);
-      const textContent = await page.getTextContent();
-
-      const pageText = textContent.items
-        .filter((item): item is any => "str" in item)
-        .map((item: any) => item.str)
-        .join(" ");
-
-      fullText += pageText + "\n";
-    }
-
-    await pdfDocument.destroy();
-
-    if (!fullText.trim()) {
-      throw new Error("No readable text found in the PDF file");
-    }
-
-    return fullText.trim();
+    return data.text ?? "";
   } catch (error) {
     console.error("PDF parsing error:", error);
     throw new Error(
@@ -92,7 +65,7 @@ Focus on identifying 10-15 key text segments that best represent the resume's st
 `;
 
     const response = await openai.chat.completions.create({
-      model: "gpt-4o",
+      model: "gpt-4.1",
       messages: [
         {
           role: "system",
@@ -109,7 +82,7 @@ Focus on identifying 10-15 key text segments that best represent the resume's st
       max_tokens: 1500,
     });
 
-    const result = JSON.parse(response.choices[0].message.content || "{}");
+    const result = JSON.parse(response.choices[0]?.message?.content || "{}");
     return result.highlights || [];
   } catch (error) {
     console.error("Error generating highlighted text:", error);
@@ -176,7 +149,7 @@ Provide constructive, actionable feedback. Focus on:
 `;
 
     const response = await openai.chat.completions.create({
-      model: "gpt-4o",
+      model: "gpt-4.1",
       messages: [
         {
           role: "system",
@@ -193,7 +166,7 @@ Provide constructive, actionable feedback. Focus on:
       max_tokens: 2000,
     });
 
-    const result = JSON.parse(response.choices[0].message.content || "{}");
+    const result = JSON.parse(response.choices[0]?.message.content || "{}");
 
     // Validate and ensure all required fields are present
     return {
@@ -263,16 +236,18 @@ export async function analyzeResumeWithAI(
   jobCategory: JobCategory
 ): Promise<ResumeAnalysisResult> {
   try {
-    // Generate highlighted text analysis in parallel with main analysis
-    const [analysisResult, highlightedText] = await Promise.all([
+    const [
+      analysisResult,
+      //  highlightedText
+    ] = await Promise.all([
       generateMainAnalysis(resumeText, jobCategory),
-      generateHighlightedText(resumeText, jobCategory),
+      // generateHighlightedText(resumeText, jobCategory),
     ]);
 
     return {
       ...analysisResult,
       originalText: resumeText,
-      highlightedText,
+      // highlightedText,
     };
   } catch (error) {
     console.error("OpenAI API error:", error);
@@ -287,14 +262,12 @@ export async function analyzeResume(
   jobCategory: JobCategory
 ): Promise<ResumeAnalysisResult> {
   try {
-    // Extract text from PDF
     const resumeText = await extractTextFromPDF(pdfBuffer);
 
     if (!resumeText.trim()) {
       throw new Error("No readable text found in the PDF file");
     }
 
-    // Analyze with AI
     const analysis = await analyzeResumeWithAI(resumeText, jobCategory);
 
     return analysis;

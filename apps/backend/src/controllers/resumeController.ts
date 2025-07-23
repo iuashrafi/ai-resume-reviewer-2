@@ -12,17 +12,49 @@ export const uploadAndAnalyze = async (
 ) => {
   try {
     const file = req.file;
+    const { jobCategory } = req.body;
     const userId = req.user?.userId;
 
     if (!req.file) {
       res.status(400).json({ message: "No PDF file uploaded" });
       return;
     }
+    if (!userId) {
+      res.status(401).json({ message: "User not authenticated" });
+      return;
+    }
 
-    console.log("file=", req.file);
-    res.status(200).json({
+    const validatedCategory = jobCategorySchema.parse(jobCategory);
+
+    const analysisResult = await analyzeResume(
+      req.file.buffer,
+      validatedCategory
+    );
+
+    console.log("analysis result = ", analysisResult);
+
+    const [storedAnalysis] = await db
+      .insert(resumeAnalyses)
+      .values({
+        userId: userId,
+        fileName: req.file.originalname,
+        jobCategory: validatedCategory,
+        fullName: analysisResult.fullName,
+        overallScore: analysisResult.overallScore,
+        sections: analysisResult.sections,
+        summary: analysisResult.summary,
+        suggestedFixes: analysisResult.suggestedFixes,
+        atsScore: analysisResult.atsScore,
+        originalText: analysisResult.originalText,
+        highlightedText: {},
+      })
+      .returning();
+
+    res.status(201).json({
       success: true,
-      message: "Resume uploaded and analyzed successfully!",
+      message: "Successfully analyzed resume",
+      id: storedAnalysis?.id,
+      ...analysisResult,
     });
   } catch (error) {
     console.error("resume upload and analyse error:", error);
