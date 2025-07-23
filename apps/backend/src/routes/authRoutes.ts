@@ -11,6 +11,5 @@ router.post("/login", login);
 
 // Protected routes
 router.get("/profile", authMiddleware, getProfile);
-// router.post("/logout", authMiddleware, AuthController.logout);
 
 export default router;

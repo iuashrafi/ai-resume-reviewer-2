@@ -3,18 +3,47 @@ import { Response } from "express";
 import { db, resumeAnalyses, jobCategorySchema } from "../db/index.js";
 import { eq, desc } from "drizzle-orm";
 import { analyzeResume } from "../services/resumeAnalyzer.js";
-import { AuthRequest } from "../middleware/authMiddleware.js";
 import { z } from "zod";
+import { AuthenticatedRequest } from "../types/auth.types.js";
 
+export const uploadAndAnalyze = async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
+  try {
+    const file = req.file;
+    const userId = req.user?.userId;
+
+    if (!req.file) {
+      res.status(400).json({ message: "No PDF file uploaded" });
+      return;
+    }
+
+    console.log("file=", req.file);
+    res.status(200).json({
+      success: true,
+      message: "Resume uploaded and analyzed successfully!",
+    });
+  } catch (error) {
+    console.error("resume upload and analyse error:", error);
+    res.status(500).json({
+      success: false,
+      message:
+        error instanceof Error ? error.message : "Failed to analyze resume",
+    });
+  }
+};
+
+/*
 export class ResumeController {
-  static async uploadAndAnalyze(req: AuthRequest, res: Response) {
+  static async uploadAndAnalyze(req: AuthenticatedRequest, res: Response) {
     try {
       if (!req.file) {
         return res.status(400).json({ message: "No PDF file uploaded" });
       }
 
       const { jobCategory } = req.body;
-      const userId = req.user?.id;
+      const userId = req.user?.userId;
 
       if (!userId) {
         return res.status(401).json({ message: "User not authenticated" });
@@ -68,7 +97,7 @@ export class ResumeController {
     }
   }
 
-  static async getAnalysisById(req: AuthRequest, res: Response) {
+  static async getAnalysisById(req: AuthenticatedRequest, res: Response) {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
@@ -85,7 +114,7 @@ export class ResumeController {
       }
 
       // Check if user owns this analysis
-      const userId = req.user?.id;
+      const userId = req.user?.userId;
       if (analysis.userId !== userId) {
         return res.status(403).json({ message: "Access denied" });
       }
@@ -102,9 +131,9 @@ export class ResumeController {
     }
   }
 
-  static async getUserAnalyses(req: AuthRequest, res: Response) {
+  static async getUserAnalyses(req: AuthenticatedRequest, res: Response) {
     try {
-      const userId = req.user?.id;
+      const userId = req.user?.userId;
 
       if (!userId) {
         return res.status(401).json({ message: "User not authenticated" });
@@ -123,14 +152,14 @@ export class ResumeController {
     }
   }
 
-  static async deleteAnalysis(req: AuthRequest, res: Response) {
+  static async deleteAnalysis(req: AuthenticatedRequest, res: Response) {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
         return res.status(400).json({ message: "Invalid analysis ID" });
       }
 
-      const userId = req.user?.id;
+      const userId = req.user?.userId;
       if (!userId) {
         return res.status(401).json({ message: "User not authenticated" });
       }
@@ -159,14 +188,14 @@ export class ResumeController {
     }
   }
 
-  static async updateAnalysis(req: AuthRequest, res: Response) {
+  static async updateAnalysis(req: AuthenticatedRequest, res: Response) {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
         return res.status(400).json({ message: "Invalid analysis ID" });
       }
 
-      const userId = req.user?.id;
+      const userId = req.user?.userId;
       if (!userId) {
         return res.status(401).json({ message: "User not authenticated" });
       }
@@ -212,7 +241,7 @@ export class ResumeController {
     }
   }
 
-  static getJobCategories(req: AuthRequest, res: Response) {
+  static getJobCategories(req: AuthenticatedRequest, res: Response) {
     const categories = [
       {
         id: "software-developer",
@@ -261,9 +290,9 @@ export class ResumeController {
     res.json(categories);
   }
 
-  static async getAnalysisStats(req: AuthRequest, res: Response) {
+  static async getAnalysisStats(req: AuthenticatedRequest, res: Response) {
     try {
-      const userId = req.user?.id;
+      const userId = req.user?.userId;
 
       if (!userId) {
         return res.status(401).json({ message: "User not authenticated" });
@@ -331,9 +360,9 @@ export class ResumeController {
     }
   }
 
-  static async searchAnalyses(req: AuthRequest, res: Response) {
+  static async searchAnalyses(req: AuthenticatedRequest, res: Response) {
     try {
-      const userId = req.user?.id;
+      const userId = req.user?.userId;
 
       if (!userId) {
         return res.status(401).json({ message: "User not authenticated" });
@@ -394,3 +423,5 @@ export class ResumeController {
     }
   }
 }
+
+*/

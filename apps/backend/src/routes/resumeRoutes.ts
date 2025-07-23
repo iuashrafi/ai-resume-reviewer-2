@@ -1,7 +1,7 @@
 // src/routes/resumeRoutes.ts
 import { Router } from "express";
 import multer from "multer";
-import { ResumeController } from "../controllers/resumeController.js";
+import { uploadAndAnalyze } from "../controllers/resumeController.js";
 import { authMiddleware } from "../middleware/authMiddleware.js";
 
 const router: Router = Router();
@@ -21,21 +21,16 @@ const upload = multer({
   },
 });
 
-// All routes are protected
 router.use(authMiddleware);
 
 // Resume analysis routes
-router.post(
-  "/upload",
-  upload.single("resume"),
-  ResumeController.uploadAndAnalyze
-);
-router.get("/analyses", ResumeController.getUserAnalyses);
-router.get("/analyses/search", ResumeController.searchAnalyses);
-router.get("/analyses/stats", ResumeController.getAnalysisStats);
-router.get("/analyses/:id", ResumeController.getAnalysisById);
-router.put("/analyses/:id", ResumeController.updateAnalysis);
-router.delete("/analyses/:id", ResumeController.deleteAnalysis);
-router.get("/job-categories", ResumeController.getJobCategories);
+router.post("/upload", upload.single("resume"), uploadAndAnalyze);
+// router.get("/analyses", ResumeController.getUserAnalyses);
+// router.get("/analyses/search", ResumeController.searchAnalyses);
+// router.get("/analyses/stats", ResumeController.getAnalysisStats);
+// router.get("/analyses/:id", ResumeController.getAnalysisById);
+// router.put("/analyses/:id", ResumeController.updateAnalysis);
+// router.delete("/analyses/:id", ResumeController.deleteAnalysis);
+// router.get("/job-categories", ResumeController.getJobCategories);
 
 export default router;
