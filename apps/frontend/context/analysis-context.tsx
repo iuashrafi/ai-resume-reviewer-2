@@ -33,7 +33,7 @@ export function AnalysisProvider({ children }: { children: React.ReactNode }) {
     async (file: File, category: string) => {
       try {
         setAnalysisState({ isProcessing: true, file, category });
-        // router.push("/processing");
+        router.push("/processing");
 
         await new Promise((resolve) => setTimeout(resolve, 1000));
 
@@ -41,13 +41,13 @@ export function AnalysisProvider({ children }: { children: React.ReactNode }) {
 
         showToast("Analysis Complted!", "success");
 
-        // router.push(`/results/${result.id}`);
+        router.push(`/results/${result.id}`);
       } catch (error) {
         console.error("Analysis failed:", error);
 
         showToast("Analysis Failed!", "error");
 
-        // router.push("/");
+        router.push("/");
       } finally {
         setAnalysisState({ isProcessing: false, file: null, category: null });
       }
