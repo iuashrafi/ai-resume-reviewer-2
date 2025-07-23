@@ -1,7 +1,10 @@
 // src/routes/resumeRoutes.ts
 import { Router } from "express";
 import multer from "multer";
-import { uploadAndAnalyze } from "../controllers/resumeController.js";
+import {
+  getAnalysisById,
+  uploadAndAnalyze,
+} from "../controllers/resumeController.js";
 import { authMiddleware } from "../middleware/authMiddleware.js";
 
 const router: Router = Router();
@@ -23,12 +26,11 @@ const upload = multer({
 
 router.use(authMiddleware);
 
-// Resume analysis routes
 router.post("/upload", upload.single("resume"), uploadAndAnalyze);
+router.get("/analyses/:id", getAnalysisById);
 // router.get("/analyses", ResumeController.getUserAnalyses);
 // router.get("/analyses/search", ResumeController.searchAnalyses);
 // router.get("/analyses/stats", ResumeController.getAnalysisStats);
-// router.get("/analyses/:id", ResumeController.getAnalysisById);
 // router.put("/analyses/:id", ResumeController.updateAnalysis);
 // router.delete("/analyses/:id", ResumeController.deleteAnalysis);
 // router.get("/job-categories", ResumeController.getJobCategories);

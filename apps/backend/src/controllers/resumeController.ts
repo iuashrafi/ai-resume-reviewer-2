@@ -66,102 +66,47 @@ export const uploadAndAnalyze = async (
   }
 };
 
+export const getAnalysisById = async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
+  try {
+    const id = req.params.id ? parseInt(req.params.id) : null;
+    if (!id) {
+      res.status(400).json({ message: "Invalid analysis ID" });
+      return;
+    }
+
+    const [analysis] = await db
+      .select()
+      .from(resumeAnalyses)
+      .where(eq(resumeAnalyses.id, id));
+
+    if (!analysis) {
+      res.status(404).json({ message: "Analysis not found" });
+      return;
+    }
+
+    // Check if user owns this analysis
+    const userId = req.user?.userId;
+    if (analysis.userId !== userId) {
+      res.status(403).json({ message: "Access denied" });
+      return;
+    }
+
+    res.json(analysis);
+  } catch (error) {
+    console.error("Get analysis error:", error);
+    res.status(500).json({
+      message:
+        error instanceof Error ? error.message : "Failed to retrieve analysis",
+    });
+  }
+};
+
 /*
 export class ResumeController {
-  static async uploadAndAnalyze(req: AuthenticatedRequest, res: Response) {
-    try {
-      if (!req.file) {
-        return res.status(400).json({ message: "No PDF file uploaded" });
-      }
-
-      const { jobCategory } = req.body;
-      const userId = req.user?.userId;
-
-      if (!userId) {
-        return res.status(401).json({ message: "User not authenticated" });
-      }
-
-      // Validate job category
-      const validatedCategory = jobCategorySchema.parse(jobCategory);
-
-      // Analyze resume
-      const analysisResult = await analyzeResume(
-        req.file.buffer,
-        validatedCategory
-      );
-
-      // Store analysis result
-      const [storedAnalysis] = await db
-        .insert(resumeAnalyses)
-        .values({
-          userId: userId,
-          fileName: req.file.originalname,
-          jobCategory: validatedCategory,
-          fullName: analysisResult.fullName,
-          overallScore: analysisResult.overallScore,
-          sections: analysisResult.sections,
-          summary: analysisResult.summary,
-          suggestedFixes: analysisResult.suggestedFixes,
-          atsScore: analysisResult.atsScore,
-          originalText: analysisResult.originalText,
-          highlightedText: analysisResult.highlightedText,
-        })
-        .returning();
-
-      res.json({
-        id: storedAnalysis.id,
-        ...analysisResult,
-      });
-    } catch (error) {
-      console.error("Upload/analysis error:", error);
-
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({
-          message: "Invalid job category",
-          errors: error.errors,
-        });
-      }
-
-      res.status(500).json({
-        message:
-          error instanceof Error ? error.message : "Failed to analyze resume",
-      });
-    }
-  }
-
-  static async getAnalysisById(req: AuthenticatedRequest, res: Response) {
-    try {
-      const id = parseInt(req.params.id);
-      if (isNaN(id)) {
-        return res.status(400).json({ message: "Invalid analysis ID" });
-      }
-
-      const [analysis] = await db
-        .select()
-        .from(resumeAnalyses)
-        .where(eq(resumeAnalyses.id, id));
-
-      if (!analysis) {
-        return res.status(404).json({ message: "Analysis not found" });
-      }
-
-      // Check if user owns this analysis
-      const userId = req.user?.userId;
-      if (analysis.userId !== userId) {
-        return res.status(403).json({ message: "Access denied" });
-      }
-
-      res.json(analysis);
-    } catch (error) {
-      console.error("Get analysis error:", error);
-      res.status(500).json({
-        message:
-          error instanceof Error
-            ? error.message
-            : "Failed to retrieve analysis",
-      });
-    }
-  }
+ 
 
   static async getUserAnalyses(req: AuthenticatedRequest, res: Response) {
     try {
