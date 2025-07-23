@@ -4,7 +4,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import { CookieNames } from "@/types/enum";
-import api from "@/lib/api";
+import { api } from "@/lib/api";
 import { User } from "@/types/auth.types";
 
 interface AuthContextType {
@@ -24,7 +24,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const fetchProfile = async () => {
     try {
-      const res = await api.get(`api/auth/profile`);
+      const res = await api.get(`/api/auth/profile`);
       setUser(res.data.user);
     } catch (error) {
       setUser(null);
@@ -44,7 +44,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const logout = () => {
     Cookies.remove(CookieNames.jwtToken);
     setUser(null);
-    router.push("/auth/login");
+    router.push("/login");
   };
 
   useEffect(() => {
