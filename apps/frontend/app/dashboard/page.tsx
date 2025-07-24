@@ -37,12 +37,12 @@ export default function DashboardPage() {
 
   const fetchData = async () => {
     try {
-      const [analysesData, statsData] = await Promise.all([
+      const [analysesData] = await Promise.all([
         resumeApi.getAnalyses(),
-        resumeApi.getAnalysisStats(),
+        // resumeApi.getAnalysisStats(),
       ]);
       setAnalyses(analysesData);
-      setStats(statsData);
+      // setStats(statsData);
     } catch (error: any) {
       console.error("Failed to fetch dashboard data:", error);
       toast.error("Failed to load dashboard data");
@@ -116,9 +116,7 @@ export default function DashboardPage() {
         {/* Header */}
         <div className="flex justify-between items-start mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Resume Analysis Dashboard
-            </h1>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Dashboard</h1>
             <p className="text-gray-600">
               Welcome back, {user?.email || "User"}
             </p>
@@ -128,21 +126,21 @@ export default function DashboardPage() {
               <Plus className="h-4 w-4" />
               New Analysis
             </Button>
-            <Button
+            {/* <Button
               variant="outline"
               onClick={() => {}}
               className="flex items-center gap-2"
             >
               <LogOut className="h-4 w-4" />
               Logout
-            </Button>
+            </Button> */}
           </div>
         </div>
 
         {/* Stats Overview */}
         {analyses && analyses.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <Card className="p-6">
+            <Card className="p-6 shadow-none rounded-md">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-blue-100 rounded-lg">
                   <FileText className="h-6 w-6 text-blue-600" />
@@ -154,7 +152,7 @@ export default function DashboardPage() {
               </div>
             </Card>
 
-            <Card className="p-6">
+            <Card className="p-6 shadow-none rounded-md">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-green-100 rounded-lg">
                   <ArrowRight className="h-6 w-6 text-green-600" />
@@ -175,7 +173,7 @@ export default function DashboardPage() {
               </div>
             </Card>
 
-            <Card className="p-6">
+            <Card className="p-6 shadow-none rounded-md">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-purple-100 rounded-lg">
                   <Calendar className="h-6 w-6 text-purple-600" />
@@ -200,7 +198,7 @@ export default function DashboardPage() {
           </h2>
 
           {!analyses || analyses.length === 0 ? (
-            <Card className="p-12 text-center">
+            <Card className="p-12 text-center rounded-md">
               <div className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
                 <FileText className="h-8 w-8 text-gray-400" />
               </div>
@@ -221,7 +219,7 @@ export default function DashboardPage() {
               {analyses.map((analysis: ResumeAnalysis) => (
                 <Card
                   key={analysis.id}
-                  className="p-6 hover:shadow-md transition-shadow"
+                  className="p-6 hover:cursor-pointer transition-shadow  shadow-none rounded-md"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex-1">

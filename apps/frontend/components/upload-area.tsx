@@ -89,11 +89,11 @@ export function UploadArea({
 
       <Card
         className={`
-          border-2 border-dashed p-12 text-center cursor-pointer transition-all duration-200
+          border-2 border-dashed p-12 text-center cursor-pointer transition-all duration-200 shadow-none
           ${
             isDragOver || uploadedFile
               ? "border-primary bg-blue-50"
-              : "border-gray-300 hover:border-primary hover:bg-blue-50"
+              : "border-gray-300/70 hover:border-primary hover:bg-violet-50/70"
           }
           ${isUploading ? "pointer-events-none opacity-50" : ""}
         `}
@@ -111,7 +111,7 @@ export function UploadArea({
           disabled={isUploading}
         />
 
-        <div className="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+        <div className="mx-auto w-16 h-16 bg-violet-100 rounded-full flex items-center justify-center mb-4">
           {uploadedFile ? (
             <Check className="text-green-600 w-8 h-8" />
           ) : (

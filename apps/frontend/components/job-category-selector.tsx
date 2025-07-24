@@ -14,9 +14,9 @@ const jobCategories = [
   {
     id: "software-developer",
     name: "Software Developer",
-    description: "Frontend, Backend, Full-stack",
+    description: "Backend",
     icon: Code,
-    color: "blue",
+    color: "purple",
   },
   // {
   //   id: "data-engineer",
@@ -30,7 +30,7 @@ const jobCategories = [
     name: "Founder's Office",
     description: "Strategy, Operations",
     icon: Rocket,
-    color: "purple",
+    color: "green",
   },
   // {
   //   id: "product-manager",
@@ -104,11 +104,11 @@ export function JobCategorySelector({
             <Card
               key={category.id}
               className={`
-                p-4 cursor-pointer transition-all duration-200 border shadow-none 
+                rounded-md p-4 cursor-pointer transition-all duration-200 border shadow-none 
                 ${
                   isSelected
-                    ? "border-primary bg-blue-50"
-                    : "border-gray-200 hover:border-primary hover:bg-blue-50"
+                    ? "border-primary bg-violet-50"
+                    : "border-gray-200 hover:border-primary"
                 }
               `}
               onClick={() => onCategorySelect(category.id)}

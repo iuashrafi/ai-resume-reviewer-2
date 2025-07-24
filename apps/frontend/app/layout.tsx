@@ -5,6 +5,7 @@ import { AuthGate } from "@/context/AuthGate";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
 import { AnalysisProvider } from "@/context/analysis-context";
+import { Header } from "@/components/header";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -40,6 +41,7 @@ export default function RootLayout({
                 duration: 3000,
               }}
             />
+            <Header />
             {children}
           </AnalysisProvider>
           {/* </AuthGate> */}
