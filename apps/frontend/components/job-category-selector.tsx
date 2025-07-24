@@ -18,13 +18,13 @@ const jobCategories = [
     icon: Code,
     color: "blue",
   },
-  {
-    id: "data-engineer",
-    name: "Data Engineer",
-    description: "ETL, Analytics, ML",
-    icon: Database,
-    color: "green",
-  },
+  // {
+  //   id: "data-engineer",
+  //   name: "Data Engineer",
+  //   description: "ETL, Analytics, ML",
+  //   icon: Database,
+  //   color: "green",
+  // },
   {
     id: "founders-office",
     name: "Founder's Office",
@@ -32,13 +32,13 @@ const jobCategories = [
     icon: Rocket,
     color: "purple",
   },
-  {
-    id: "product-manager",
-    name: "Product Manager",
-    description: "Strategy, Analytics",
-    icon: TrendingUp,
-    color: "orange",
-  },
+  // {
+  //   id: "product-manager",
+  //   name: "Product Manager",
+  //   description: "Strategy, Analytics",
+  //   icon: TrendingUp,
+  //   color: "orange",
+  // },
   {
     id: "devops-engineer",
     name: "DevOps Engineer",
@@ -46,13 +46,13 @@ const jobCategories = [
     icon: Server,
     color: "red",
   },
-  {
-    id: "ui-ux-designer",
-    name: "UI/UX Designer",
-    description: "Design, Research",
-    icon: Palette,
-    color: "pink",
-  },
+  // {
+  //   id: "ui-ux-designer",
+  //   name: "UI/UX Designer",
+  //   description: "Design, Research",
+  //   icon: Palette,
+  //   color: "pink",
+  // },
 ];
 
 interface JobCategorySelectorProps {
@@ -104,7 +104,7 @@ export function JobCategorySelector({
             <Card
               key={category.id}
               className={`
-                p-4 cursor-pointer transition-all duration-200 border
+                p-4 cursor-pointer transition-all duration-200 border shadow-none 
                 ${
                   isSelected
                     ? "border-primary bg-blue-50"

@@ -179,3 +179,11 @@
     @apply bg-background text-foreground;
   }
 } */
+
+
+.gradient-mesh-1 {
+
+
+      background: radial-gradient(at 56% 79%, #ffffff 0px, transparent 50%), radial-gradient(at 79% 27%, #b1e8ed 0px, transparent 50%), radial-gradient(at 80.49568965517241% 32.29166666666667%, #edb5f5 0px, transparent 50%), radial-gradient(at 19.935344827586206% 68.33333333333333%, #cbbbfc 0px, transparent 50%), radial-gradient(at 12.176724137931034% 96.25%, #ffffff 0px, transparent 50%), #e6f8f9;
+        
+}
