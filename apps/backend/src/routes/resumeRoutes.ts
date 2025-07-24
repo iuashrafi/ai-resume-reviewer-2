@@ -2,7 +2,9 @@
 import { Router } from "express";
 import multer from "multer";
 import {
+  getAllResumeAnalyses,
   getAnalysisById,
+  getAnalysisStats,
   uploadAndAnalyze,
 } from "../controllers/resumeController.js";
 import { authMiddleware } from "../middleware/authMiddleware.js";
@@ -28,7 +30,8 @@ router.use(authMiddleware);
 
 router.post("/upload", upload.single("resume"), uploadAndAnalyze);
 router.get("/analyses/:id", getAnalysisById);
-// router.get("/analyses", ResumeController.getUserAnalyses);
+router.get("/analyses", getAllResumeAnalyses);
+router.get("/analyses/stats", getAnalysisStats);
 // router.get("/analyses/search", ResumeController.searchAnalyses);
 // router.get("/analyses/stats", ResumeController.getAnalysisStats);
 // router.put("/analyses/:id", ResumeController.updateAnalysis);

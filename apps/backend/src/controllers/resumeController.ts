@@ -104,6 +104,106 @@ export const getAnalysisById = async (
   }
 };
 
+export const getAllResumeAnalyses = async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
+  try {
+    const userId = req.user?.userId;
+
+    if (!userId) {
+      res.status(401).json({ message: "User not authenticated" });
+      return;
+    }
+
+    const analyses = await db
+      .select()
+      .from(resumeAnalyses)
+      .where(eq(resumeAnalyses.userId, userId))
+      .orderBy(desc(resumeAnalyses.createdAt));
+
+    res.json(analyses);
+  } catch (error) {
+    console.error("Error fetching user analyses:", error);
+    res.status(500).json({ message: "Failed to fetch analyses" });
+  }
+};
+
+export const getAnalysisStats = async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
+  try {
+    const userId = req.user?.userId;
+
+    console.log("stats is being called");
+    if (!userId) {
+      res.status(401).json({ message: "User not authenticated" });
+      return;
+    }
+
+    // Get all user analyses for stats calculation
+    const analyses = await db
+      .select({
+        id: resumeAnalyses.id,
+        overallScore: resumeAnalyses.overallScore,
+        jobCategory: resumeAnalyses.jobCategory,
+        createdAt: resumeAnalyses.createdAt,
+      })
+      .from(resumeAnalyses)
+      .where(eq(resumeAnalyses.userId, userId))
+      .orderBy(desc(resumeAnalyses.createdAt));
+
+    if (analyses.length === 0) {
+      res.json({
+        totalAnalyses: 0,
+        averageScore: 0,
+        lastAnalysis: null,
+        topJobCategory: null,
+        scoreImprovement: 0,
+      });
+      return;
+    }
+
+    // Calculate statistics
+    const totalAnalyses = analyses.length;
+    const averageScore = Math.round(
+      analyses.reduce((sum, analysis) => sum + analysis.overallScore, 0) /
+        totalAnalyses
+    );
+    const lastAnalysis = analyses[0]?.createdAt || null;
+
+    // Find most common job category
+    const jobCategoryCounts = analyses.reduce((acc, analysis) => {
+      acc[analysis.jobCategory] = (acc[analysis.jobCategory] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    const topJobCategory =
+      Object.entries(jobCategoryCounts).sort(([, a], [, b]) => b - a)[0]?.[0] ||
+      null;
+
+    // Calculate score improvement (compare first and last analysis)
+    let scoreImprovement = 0;
+    if (analyses.length >= 2) {
+      const latestScore = analyses[0]?.overallScore;
+      const firstScore = analyses[analyses.length - 1]?.overallScore;
+      scoreImprovement =
+        latestScore && firstScore ? latestScore - firstScore : 0;
+    }
+
+    res.status(200).json({
+      totalAnalyses,
+      averageScore,
+      lastAnalysis,
+      topJobCategory,
+      scoreImprovement,
+    });
+  } catch (error) {
+    console.error("Get analysis stats error:", error);
+    res.status(500).json({ message: "Failed to get analysis statistics" });
+  }
+};
 /*
 export class ResumeController {
  

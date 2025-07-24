@@ -14,21 +14,26 @@ import {
   Filter,
   Trash2,
   Eye,
+  LogOut,
+  Loader2,
+  ArrowRight,
+  Badge,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import toast from "react-hot-toast";
+import { Button } from "@/components/ui/button";
+import { useAuthContext } from "@/context/AuthProvider";
+import { Card } from "@/components/ui/card";
+import { Progress } from "@radix-ui/react-progress";
 
 export default function DashboardPage() {
   const router = useRouter();
+  const { user } = useAuthContext();
   const [analyses, setAnalyses] = useState<ResumeAnalysis[]>([]);
   const [stats, setStats] = useState<AnalysisStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterCategory, setFilterCategory] = useState<string>("");
-
-  useEffect(() => {
-    fetchData();
-  }, []);
 
   const fetchData = async () => {
     try {
@@ -45,6 +50,10 @@ export default function DashboardPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const handleDeleteAnalysis = async (id: number) => {
     if (!confirm("Are you sure you want to delete this analysis?")) return;
@@ -86,12 +95,16 @@ export default function DashboardPage() {
 
   const uniqueCategories = [...new Set(analyses.map((a) => a.jobCategory))];
 
+  const handleViewAnalysis = (analysisId: number) => {
+    router.push(`/results/${analysisId}`);
+  };
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-12 h-12 border-4 border-primary-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading dashboard...</p>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="flex items-center gap-2">
+          <Loader2 className="h-6 w-6 animate-spin" />
+          <span>Loading dashboard...</span>
         </div>
       </div>
     );
@@ -99,211 +112,147 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">
-                Resume Dashboard
-              </h1>
-              <p className="text-gray-600 mt-1">
-                Manage and track your resume analyses
-              </p>
-            </div>
-            <button
-              onClick={() => router.push("/resume/upload")}
-              className="px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors flex items-center space-x-2 shadow-lg"
+      <div className="max-w-6xl mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="flex justify-between items-start mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              Resume Analysis Dashboard
+            </h1>
+            <p className="text-gray-600">
+              Welcome back, {user?.email || "User"}
+            </p>
+          </div>
+          <div className="flex gap-3">
+            <Button onClick={() => {}} className="flex items-center gap-2">
+              <Plus className="h-4 w-4" />
+              New Analysis
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => {}}
+              className="flex items-center gap-2"
             >
-              <Plus className="w-5 h-5" />
-              <span>New Analysis</span>
-            </button>
+              <LogOut className="h-4 w-4" />
+              Logout
+            </Button>
           </div>
         </div>
-      </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Stats Overview */}
-        {stats && stats.totalAnalyses > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <div className="flex items-center">
+        {analyses && analyses.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <Card className="p-6">
+              <div className="flex items-center gap-3">
                 <div className="p-2 bg-blue-100 rounded-lg">
-                  <FileText className="w-6 h-6 text-blue-600" />
+                  <FileText className="h-6 w-6 text-blue-600" />
                 </div>
-                <div className="ml-4">
+                <div>
                   <p className="text-sm text-gray-600">Total Analyses</p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    {stats.totalAnalyses}
-                  </p>
+                  <p className="text-2xl font-bold">{analyses.length}</p>
                 </div>
               </div>
-            </div>
+            </Card>
 
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <div className="flex items-center">
+            <Card className="p-6">
+              <div className="flex items-center gap-3">
                 <div className="p-2 bg-green-100 rounded-lg">
-                  <BarChart3 className="w-6 h-6 text-green-600" />
+                  <ArrowRight className="h-6 w-6 text-green-600" />
                 </div>
-                <div className="ml-4">
+                <div>
                   <p className="text-sm text-gray-600">Average Score</p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    {stats.averageScore}%
+                  <p className="text-2xl font-bold">
+                    {Math.round(
+                      analyses.reduce(
+                        (sum: number, analysis: ResumeAnalysis) =>
+                          sum + analysis.overallScore,
+                        0
+                      ) / analyses.length
+                    )}
+                    %
                   </p>
                 </div>
               </div>
-            </div>
+            </Card>
 
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <div className="flex items-center">
+            <Card className="p-6">
+              <div className="flex items-center gap-3">
                 <div className="p-2 bg-purple-100 rounded-lg">
-                  <Calendar className="w-6 h-6 text-purple-600" />
+                  <Calendar className="h-6 w-6 text-purple-600" />
                 </div>
-                <div className="ml-4">
+                <div>
                   <p className="text-sm text-gray-600">Last Analysis</p>
-                  <p className="text-lg font-bold text-gray-900">
-                    {stats.lastAnalysis
-                      ? formatDistanceToNow(new Date(stats.lastAnalysis), {
-                          addSuffix: true,
-                        })
-                      : "Never"}
+                  <p className="text-2xl font-bold">
+                    {formatDistanceToNow(new Date(analyses[0].createdAt), {
+                      addSuffix: true,
+                    })}
                   </p>
                 </div>
               </div>
-            </div>
-
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <div className="flex items-center">
-                <div className="p-2 bg-orange-100 rounded-lg">
-                  <TrendingUp className="w-6 h-6 text-orange-600" />
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm text-gray-600">Score Improvement</p>
-                  <p
-                    className={`text-2xl font-bold ${
-                      stats.scoreImprovement >= 0
-                        ? "text-green-600"
-                        : "text-red-600"
-                    }`}
-                  >
-                    {stats.scoreImprovement > 0 ? "+" : ""}
-                    {stats.scoreImprovement}%
-                  </p>
-                </div>
-              </div>
-            </div>
+            </Card>
           </div>
         )}
 
-        {/* Filters */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
-            <div className="flex-1 max-w-md">
-              <div className="relative">
-                <Search className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
-                <input
-                  type="text"
-                  placeholder="Search analyses..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                />
-              </div>
-            </div>
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <Filter className="w-5 h-5 text-gray-400" />
-                <select
-                  value={filterCategory}
-                  onChange={(e) => setFilterCategory(e.target.value)}
-                  className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                >
-                  <option value="">All Categories</option>
-                  {uniqueCategories.map((category) => (
-                    <option key={category} value={category}>
-                      {formatJobCategory(category)}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-          </div>
-        </div>
+        {/* Analysis History */}
+        <div className="space-y-6">
+          <h2 className="text-xl font-semibold text-gray-900">
+            Analysis History
+          </h2>
 
-        {/* Analyses List */}
-        <div className="bg-white rounded-lg shadow-sm">
-          <div className="p-6 border-b">
-            <h2 className="text-xl font-semibold text-gray-900">
-              Analysis History
-            </h2>
-          </div>
-
-          {filteredAnalyses.length === 0 ? (
-            <div className="p-12 text-center">
-              <FileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+          {!analyses || analyses.length === 0 ? (
+            <Card className="p-12 text-center">
+              <div className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                <FileText className="h-8 w-8 text-gray-400" />
+              </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                {analyses.length === 0
-                  ? "No analyses yet"
-                  : "No matching analyses"}
+                No analyses yet
               </h3>
               <p className="text-gray-600 mb-6">
-                {analyses.length === 0
-                  ? "Upload your first resume to get started with AI-powered analysis."
-                  : "Try adjusting your search or filter criteria."}
+                Upload your first resume to get started with AI-powered
+                analysis.
               </p>
-              {analyses.length === 0 && (
-                <button
-                  onClick={() => router.push("/resume/upload")}
-                  className="px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors flex items-center space-x-2 mx-auto"
-                >
-                  <Plus className="w-5 h-5" />
-                  <span>Upload Resume</span>
-                </button>
-              )}
-            </div>
+              <Button onClick={() => {}} className="flex items-center gap-2">
+                <Plus className="h-4 w-4" />
+                Upload Resume
+              </Button>
+            </Card>
           ) : (
-            <div className="divide-y">
-              {filteredAnalyses.map((analysis) => (
-                <div
+            <div className="grid gap-4">
+              {analyses.map((analysis: ResumeAnalysis) => (
+                <Card
                   key={analysis.id}
-                  className="p-6 hover:bg-gray-50 transition-colors"
+                  className="p-6 hover:shadow-md transition-shadow"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
-                      <div className="flex items-center space-x-3 mb-2">
+                      <div className="flex items-center gap-3 mb-2">
                         <h3 className="font-semibold text-gray-900">
                           {analysis.fileName}
                         </h3>
-                        <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full">
-                          {formatJobCategory(analysis.jobCategory)}
-                        </span>
+                        <Badge>{formatJobCategory(analysis.jobCategory)}</Badge>
                       </div>
 
-                      <div className="flex items-center space-x-6 text-sm text-gray-600 mb-3">
-                        <div className="flex items-center space-x-1">
-                          <Calendar className="w-4 h-4" />
-                          <span>
-                            {formatDistanceToNow(new Date(analysis.createdAt), {
-                              addSuffix: true,
-                            })}
-                          </span>
+                      <div className="flex items-center gap-6 text-sm text-gray-600 mb-3">
+                        <div className="flex items-center gap-1">
+                          <Calendar className="h-4 w-4" />
+                          {formatDistanceToNow(new Date(analysis.createdAt), {
+                            addSuffix: true,
+                          })}
                         </div>
                         {analysis.fullName && (
                           <div>Candidate: {analysis.fullName}</div>
                         )}
                       </div>
 
-                      <div className="flex items-center space-x-3">
+                      <div className="flex items-center gap-3">
                         <span className="text-sm font-medium">
                           Overall Score:
                         </span>
-                        <div className="flex items-center space-x-2">
-                          <div className="w-20 bg-gray-200 rounded-full h-2">
-                            <div
-                              className="h-2 bg-primary-600 rounded-full"
-                              style={{ width: `${analysis.overallScore}%` }}
-                            ></div>
-                          </div>
+                        <div className="flex items-center gap-2">
+                          <Progress
+                            value={analysis.overallScore}
+                            className="w-20"
+                          />
                           <span
                             className={`text-sm font-semibold px-2 py-1 rounded ${getScoreColor(
                               analysis.overallScore
@@ -315,25 +264,15 @@ export default function DashboardPage() {
                       </div>
                     </div>
 
-                    <div className="flex items-center space-x-2">
-                      <button
-                        onClick={() =>
-                          router.push(`/resume/analysis/${analysis.id}`)
-                        }
-                        className="px-4 py-2 text-primary-600 border border-primary-600 rounded-lg hover:bg-primary-50 transition-colors flex items-center space-x-2"
-                      >
-                        <Eye className="w-4 h-4" />
-                        <span>View Results</span>
-                      </button>
-                      <button
-                        onClick={() => handleDeleteAnalysis(analysis.id)}
-                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
+                    <Button
+                      onClick={() => handleViewAnalysis(analysis.id)}
+                      className="flex items-center gap-2"
+                    >
+                      View Results
+                      <ArrowRight className="h-4 w-4" />
+                    </Button>
                   </div>
-                </div>
+                </Card>
               ))}
             </div>
           )}
